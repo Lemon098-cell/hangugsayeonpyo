@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국사 연표 학습 프로그램</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f6f6f6;
+        }
+        h1 {
+            text-align: center;
+        }
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .event {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .event:hover {
+            background: #ececec;
+        }
+        .event-year {
+            font-weight: bold;
+        }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close-btn {
+            margin-top: 10px;
+            display: inline-block;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>한국사 연표</h1>
+
+    <div class="timeline" id="timeline"></div>
+
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <h2 id="popup-title"></h2>
+            <p id="popup-desc"></p>
+            <span class="close-btn" onclick="closePopup()">닫기</span>
+        </div>
+    </div>
+
+    <script>
+        const events = [
+            {
+                year: "1945년 8월 15일",
+                title: "8·15 광복",
+                description: "일제가 무조건 항복을 선언하며 광복을 맞이함."
+            },
+            {
+                year: "1945년 8월 15일",
+                title: "조선 건국 준비 위원회",
+                description: "여운형이 조선 건국 동맹을 중심으 좌익과 우익을 아울러 <span style='color:red'>*건준</span>을 조직함.<br>전국에 지부 설치, 치안대 조직. 식량·생활필수품 확보.<br><br> <span style='color:red'>*건준</span> : 조선 건국 준비 위원회"
+            },
+            {
+                year: "1945년 8월",
+                title: "38도선",
+                description: "소련이 일본에 선전 포고 후, 소련군이 만주와 한반도의 일본군과 전투를 벌이며 미국의 예상보다 빠르게 한반도 북부 장악.<br>미국은 소련의 남하를 막기 위해 38도선 기준으로 일본군 무장 해제 제안.<br>소련이 제안 받은 뒤 이남은 미국, 이북은 소련군이 관할."
+            },
+            {
+                year: "1945년 9월",
+                title: "군정",
+                description: "38도선 이남 - 미국 통치 : 직접 통치(군정청 설치), 일제의 식민 통치 기구 유지, 임시 정부·조선 인민 공화국 등 부인.<br><br>38도선 이북 - 소련 통치 : 간접 통치(각 지역의 인민 위원회에 행정권 이양), 소련에 우호적 정부 수립 추구 -> 김일성 등 공산주의자 지원"
+            },
+            {
+                year: "1945년 9월",
+                title: "조선 인민 공화국 수립",
+                description: "미군이 남한 진주할 때 한국인을 대표해 대등한 입장에서 교섭하기 위함.<br>각 지부를 인민 위원회로 전환.<br>이 과정에서 좌익 세력의 주도권 장악, 일부 우익 세력 건준 탈퇴.<br>김성수·송민우 등 건준 활동 비판적인 우익 세력 중심으로 한국 민주당 조직.<br><br><span style='color:green'>좌 - 김일성, 박현영<br>중도 좌 - 여운형<br>중도 우 - 김규식<br>우 - 이승만, 김구, 송진우</span>"
+            },
+            {
+                year: "1945년 10월, 11월",
+                title: "이승만·김구 귀국",
+                description: "10월 - 미국에서 돌아온 이승만은 지지 세력을 모아 독립 촉성 중앙 협의회 결성.<br>11월 - 김구 등 대한민국 임시 정부 요인들은 개인 자격으로 귀국 후 한국 독립당 중심으로 활동."
+            },
+            {
+                year: "1945년 12월",
+                title: "모스크바 3국 외상 회의",
+                description: "미국·영국·소련 3국 외무장관이 모스크바에서 한국 독립 문제 협의.<br>미국 : 신탁 통치안 제출.<br>소련 : 임시 정부 수립을 내용으로 하는 안 제출.<br>미국·소련 안 절충, 한반도에 민주주의 임시 정부 수립, 미·소 공동 위원회 설치, 최대 5년간의 신탁 통치."
+            }
+        ];
+
+        const timeline = document.getElementById("timeline");
+
+        events.forEach((ev, index) => {
+            const div = document.createElement("div");
+            div.className = "event";
+            div.onclick = () => openPopup(index);
+            div.innerHTML = `<div class="event-year">${ev.year}</div>${ev.title}`;
+            timeline.appendChild(div);
+        });
+
+        function openPopup(i) {
+            const popup = document.getElementById("popup");
+            document.getElementById("popup-title").innerText = events[i].title;
+            document.getElementById("popup-desc").innerHTML = events[i].description;
+            popup.style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+    </script>
+</body>
+</html>
